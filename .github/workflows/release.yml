@@ -1,0 +1,51 @@
+name: Zip and Upload Release
+
+on:
+  push:
+    branches:
+      - main  # Triggers on push to the 'main' branch
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  zip-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    # Step 2: Set timezone to Auckland and get the current datetime
+    - name: Set Date and Time
+      id: datetime
+      run: |
+        sudo ln -sf /usr/share/zoneinfo/Pacific/Auckland /etc/localtime
+        echo "datetime=$(date '+%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT  # Format: YYYYMMDD-HHMMSS in 24-hour time
+
+    # Step 3: Zip the root directory (exclude the .git and .vscode folders)
+    - name: Zip files
+      run: |
+        zip -r scene7_extremeGT.zip . system -x "./.git/*" "./.vscode/*" "./.github/*"
+
+    # Step 4: Create a Release
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: release-${{ steps.datetime.outputs.datetime }}
+        release_name: Release ${{ steps.datetime.outputs.datetime }}
+        draft: false
+        prerelease: false
+
+    # Step 5: Upload the ZIP file to the release
+    - name: Upload ZIP to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./scene7_extremeGT.zip
+        asset_name: scene7_extremeGT-${{ steps.datetime.outputs.datetime }}.zip
+        asset_content_type: application/zip
