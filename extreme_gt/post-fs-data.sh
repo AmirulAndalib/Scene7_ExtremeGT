@@ -1,3 +1,4 @@
+#!/bin/sh
 if [[ "$KSU" == "true" ]]; then
   exit 0
 fi

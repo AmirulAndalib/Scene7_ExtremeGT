@@ -1,3 +1,4 @@
+#!/bin/sh
 # SCENE7'ExtremeGT 3.0
 
 t=29500
@@ -12,6 +13,7 @@ do
       # ;;
       # rear-tof-therm
       rear-tof-therm|cam-flash-therm)
+        # echo $(cat $tz/type) $(cat $tz/temp)
         echo $t > $tz/emul_temp
       ;;
       batt-therm|usb-therm)

@@ -1,3 +1,4 @@
+#!/bin/sh
 lock_value() {
   if [[ -f $2 ]];then
     chmod 644 $2

@@ -1,10 +1,22 @@
-if [[ $(getprop sys.extreme_gt.uninstall) == 1 ]];then
-  echo '@string:dialog_addin_by_magisk' 1>&2
-  return
-fi
+#!/bin/sh
+# Revert from 3.0.5 (3.0.7 installs the module from the Scene7 app directly, so it is not needed when flashing this module manually)
+# Scene 7 v3.7.0 modified by andalib
+
+set_perm_recursive $MODPATH 0 0 0755 0644
+
+PAGE_WORK_DIR=$MODPATH
+module=$MODPATH
+
+setprop persist.sys.oplus.wifi.sla.game_high_temperature 50 # Set Wi-Fi modem high temperature limit to 50°C
+setprop persist.sys.environment.temp 16
+setprop ro.oplus.radio.hide_nr_switch 0
+setprop debug.hwui.renderer skiavk
+# setprop persist.sys.horae.enable 0
+# setprop persist.oplus.display.vrr 0
 
 # module='extreme_gt'
-module='/data/adb/modules/extreme_gt'
+# module='/data/adb/modules/extreme_gt' # Revert from 3.0.5 (3.0.7 installs the module from the Scene7 app directly, so it is not needed when flashing this module manually)
+
 mkdir -p $module
 cat $PAGE_WORK_DIR/extreme_gt/module.prop > $module/module.prop
 cat $PAGE_WORK_DIR/extreme_gt/post-fs-data.sh > $module/post-fs-data.sh
@@ -250,9 +262,9 @@ do
      *'"battery.temperate.range":'*)
        echo '"battery.temperate.range": "[100,500]",' >> $module$file
      ;;
-     *'"high.capacity.battery.temperate.range":'*)
-       echo '"high.capacity.battery.temperate.range": "[100,500]",' >> $module$file
-     ;;
+#     *'"high.capacity.battery.temperate.range":'*)
+#       echo '"high.capacity.battery.temperate.range": "[100,500]",' >> $module$file
+#     ;;
      *'"high.capacity.threshold":'*)
        echo '"high.capacity.threshold": 85' >> $module$file
      ;;
@@ -264,29 +276,30 @@ do
 done
 
 
+# Disabled thermal customizations to prevent charging overheating (not needed unless you are an ultra-fast charging freak!!)
 # charging_thermal_config_default.txt charging_hyper_mode_config.txt
-for file in $(find $dirs -name "charging_*txt")
-do
-  mkdir -p $(dirname $module$file)
-  echo -n '' > $module$file
-  while read line; do
-    case "$line" in
-     *:=*)
-       echo "$line" >> $module$file
-     ;;
-     *,*,*)
-       temp=$(echo "$line" | awk -F, '{print $1}')
-       current=$(echo "$line" | awk -F, '{print $2}')
-       t=$(echo "$line" | awk -F, '{print $3}')
-       temp=$((temp+50)) # + 5°C
-       echo "$temp,$current,$t" >> $module$file
-     ;;
-     *)
-       echo "$line" >> $module$file
-     ;;
-    esac
-  done < $file
-done
+#for file in $(find $dirs -name "charging_*txt")
+#do
+#  mkdir -p $(dirname $module$file)
+#  echo -n '' > $module$file
+#  while read line; do
+#    case "$line" in
+#     *:=*)
+#       echo "$line" >> $module$file
+#     ;;
+#     *,*,*)
+#       temp=$(echo "$line" | awk -F, '{print $1}')
+#       current=$(echo "$line" | awk -F, '{print $2}')
+#       t=$(echo "$line" | awk -F, '{print $3}')
+#     temp=$((temp+50)) # + 5°C
+#       echo "$temp,$current,$t" >> $module$file
+#     ;;
+#     *)
+#       echo "$line" >> $module$file
+#     ;;
+#    esac
+#  done < $file
+#done
 
 # D1100/1200
 soc=$(getprop ro.board.platform)
@@ -313,7 +326,7 @@ else
   cat $PAGE_WORK_DIR/extreme_gt/service.sh > $module/service.sh
 fi
 
-manufacturer=$(getprop ro.product.odm.manufacturer)
+# manufacturer=$(getprop ro.product.odm.manufacturer)
 soc=$(getprop ro.soc.model | tr 'a-z' 'A-Z')
 
 
@@ -344,4 +357,5 @@ if [[ "$KSU" == "true" ]] || [[ $(which ksud) != "" ]]; then
   handle_partition 'product'
 fi
 
-echo '@string:dialog_addin_by_magisk' 1>&2
+echo 'OK ^_*' 1>&2
+# Revert from 3.0.5 (3.0.7 installs the module from the Scene7 app directly, so it is not needed when flashing this module manually)
