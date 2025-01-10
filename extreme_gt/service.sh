@@ -13,7 +13,6 @@ do
       # ;;
       # rear-tof-therm
       rear-tof-therm|cam-flash-therm)
-        # echo $(cat $tz/type) $(cat $tz/temp)
         echo $t > $tz/emul_temp
       ;;
       batt-therm|usb-therm)
@@ -28,7 +27,14 @@ do
     esac
   fi
 done
+
 stop horae
+for i in `seq 0 9`; do
+  echo $i $t > /proc/shell-temp
+done
+
+# stop oplus_charger_hal_service
+# stop thermal-engine
 
 gu=/proc/oplus-votable/GAUGE_UPDATE
 if [[ -d $gu ]]; then

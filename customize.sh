@@ -1,22 +1,17 @@
 #!/bin/sh
-# Revert from 3.0.5 (3.0.7 installs the module from the Scene7 app directly, so it is not needed when flashing this module manually)
-# Scene 7 v3.7.0 modified by andalib
-
+# Scene 8 v3.10.1 modified by andalib
 set_perm_recursive $MODPATH 0 0 0755 0644
+
+setprop persist.sys.oplus.wifi.sla.game_high_temperature 50
+# setprop persist.oplus.display.vrr 0
+setprop persist.sys.environment.temp 14
+# setprop persist.sys.horae.enable 0
+setprop ro.oplus.radio.hide_nr_switch 0
 
 PAGE_WORK_DIR=$MODPATH
 module=$MODPATH
 
-setprop persist.sys.oplus.wifi.sla.game_high_temperature 50 # Set Wi-Fi modem high temperature limit to 50°C
-setprop persist.sys.environment.temp 16
-setprop ro.oplus.radio.hide_nr_switch 0
-setprop debug.hwui.renderer skiavk
-# setprop persist.sys.horae.enable 0
-# setprop persist.oplus.display.vrr 0
-
-# module='extreme_gt'
-# module='/data/adb/modules/extreme_gt' # Revert from 3.0.5 (3.0.7 installs the module from the Scene7 app directly, so it is not needed when flashing this module manually)
-
+# module='/data/adb/modules/extreme_gt'
 mkdir -p $module
 cat $PAGE_WORK_DIR/extreme_gt/module.prop > $module/module.prop
 cat $PAGE_WORK_DIR/extreme_gt/post-fs-data.sh > $module/post-fs-data.sh
@@ -326,9 +321,8 @@ else
   cat $PAGE_WORK_DIR/extreme_gt/service.sh > $module/service.sh
 fi
 
-# manufacturer=$(getprop ro.product.odm.manufacturer)
+manufacturer=$(getprop ro.product.odm.manufacturer)
 soc=$(getprop ro.soc.model | tr 'a-z' 'A-Z')
-
 
 echo 'persist.sys.horae.enable=0' > $module/system.prop
 if [[ -f $START_DIR/orms_core_config.xml ]]; then
@@ -336,26 +330,4 @@ if [[ -f $START_DIR/orms_core_config.xml ]]; then
   cp -f $START_DIR/orms_core_config.xml $module/odm/etc/orms/orms_core_config.xml
 fi
 
-handle_partition() {
-    # if /system/vendor is a symlink, we need to move it out of $MODPATH/system, otherwise it will be overlayed
-    # if /system/vendor is a normal directory, it is ok to overlay it and we don't need to overlay it separately.
-    if [ ! -e $module/system/$1 ]; then
-        # no partition found
-        return;
-    fi
-
-    if [ -L "/system/$1" ] && [ "$(readlink -f /system/$1)" = "/$1" ]; then
-        # we create a symlink if module want to access $module/system/$1
-        # but it doesn't always work(ie. write it in post-fs-data.sh would fail because it is readonly)
-        mv -f $module/system/$1 $module/$1 && ln -sf ../$1 $module/system/$1
-    fi
-}
-
-if [[ "$KSU" == "true" ]] || [[ $(which ksud) != "" ]]; then
-  handle_partition 'vendor'
-  handle_partition 'system_ext'
-  handle_partition 'product'
-fi
-
 echo 'OK ^_*' 1>&2
-# Revert from 3.0.5 (3.0.7 installs the module from the Scene7 app directly, so it is not needed when flashing this module manually)

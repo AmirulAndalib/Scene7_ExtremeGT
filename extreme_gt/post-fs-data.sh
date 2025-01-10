@@ -1,8 +1,4 @@
 #!/bin/sh
-if [[ "$KSU" == "true" ]]; then
-  exit 0
-fi
-
 # 模块务必要处理文件权限，如：
 # set_perm_recursive  $MODPATH  0  0  0755  0644
 
@@ -38,29 +34,19 @@ map_files() {
   done
 }
 
-if [[ "$KSU" == "true" ]] || [[ $(which ksud) != "" ]]; then
-  for module in $modules/$target_module
-  do
-    # 遍历需要处理的特殊目录
-    for dir in 'my_product' 'my_heytap'
-    do
-      if [[ -d $module/$dir ]]; then
-        echo ">> $module/$dir"
-        map_files "$module" "$dir"
-      fi
-    done
-  done
-else
-  for module in $modules/$target_module
-  do
-    # 遍历需要处理的特殊目录
-    for dir in 'my_product' 'my_heytap' 'odm'
-    do
-      if [[ -d $module/$dir ]]; then
-        echo ">> $module/$dir"
-        map_files "$module" "$dir"
-      fi
-    done
-  done
+manual_mount='my_product my_heytap odm'
+if [[ "$KSU" == "true" ]] || [[ $(which ksud) != "" ]] || [[ $(which apd) != "" ]]; then
+  manual_mount='my_product my_heytap'
 fi
 
+for module in $modules/$target_module
+do
+  # 遍历需要处理的特殊目录
+  for dir in $manual_mount
+  do
+    if [[ -d $module/$dir ]]; then
+      echo ">> $module/$dir"
+      map_files "$module" "$dir"
+    fi
+  done
+done

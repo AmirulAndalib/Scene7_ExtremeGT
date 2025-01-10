@@ -1,7 +1,0 @@
-id=extreme_gt
-name=Extreme GT
-version=3.0.7 (fixed camera fps, base 3.0.5)
-versionCode=3007
-author=嘟嘟ski & SCENE (camera fps fix by amirulandalib)
-description=本模块由SCENE生成，用于去除OPPO、Realme、OnePlus机型的锁帧和部分温控限制
-minMagisk=17000

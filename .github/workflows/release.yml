@@ -25,6 +25,7 @@ jobs:
     # Step 3: Zip the root directory (exclude the .git and .vscode folders)
     - name: Zip files
       run: |
+        cp module.prop extreme_gt/module.prop
         zip -r scene7_extremeGT.zip . system -x "./.git/*" "./.vscode/*" "./.github/*"
 
     # Step 4: Create a Release
